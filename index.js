@@ -159,7 +159,7 @@ app.get("/services", (req, res, next) => {
   res.status(200).json({ data: serviceProviders });
 });
 
-app.get("/book", (req, res, next) => {
+app.post("/book", (req, res, next) => {
   const seats = req.body.seats;
   const providerId = req.body.service_provider_id;
   const routeId = req.body.route_id;
