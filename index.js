@@ -1,5 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const { v4: uuidv4 } = require('uuid');
 const app = express();
 
 app.use(bodyParser.json());
@@ -126,6 +127,8 @@ const SERVICE_PROVIDERS = [
   },
 ];
 
+const BOOKINGS = [];
+
 // CORS Headers
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -153,28 +156,36 @@ app.get("/service_providers", (req, res, next) => {
 
 // query the services of a service provider, requires "service_provider" param in the request body
 app.get("/services", (req, res, next) => {
-  const serviceProviders = SERVICE_PROVIDERS.filter(
+  const serviceProvider = SERVICE_PROVIDERS.filter(
     (service) => service.service_provider_id === req.body.id
   );
-  res.status(200).json({ data: serviceProviders });
+  res.status(200).json({ data: serviceProvider });
 });
 
 app.post("/book", (req, res, next) => {
   const seats = req.body.seats;
   const providerId = req.body.service_provider_id;
   const routeId = req.body.route_id;
-  const serviceProviders = SERVICE_PROVIDERS.find(
+  const serviceProvider = SERVICE_PROVIDERS.find(
     (service) => service.service_provider_id === providerId
   );
-  const route = serviceProviders.services.find(
+  const route = serviceProvider.services.find(
     (route) => route.route_id === routeId
   );
-  if(route.available_seats < seats) {
-    res.status(200).json({ data: `only ${route.available_seats} seats are available` });  
+  if (route.available_seats < seats) {
+    res
+      .status(400)
+      .json({ data: `only ${route.available_seats} seats are available` });
     return;
   }
   route.available_seats = route.available_seats - seats;
-  res.status(200).json({ data: route });
+  const booking = {
+    booking_id: uuidv4(),
+    route_id: routeId,
+    service_provider_id: providerId,
+  };
+  BOOKINGS.push(booking);
+  res.status(200).json({ data: booking });
 });
 
 app.listen(5000); // start Node + Express server on port 5000
