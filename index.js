@@ -144,7 +144,7 @@ app.use((req, res, next) => {
 });
 
 // query the service providers
-app.get("/service_providers", (req, res, next) => {
+app.get("/providers", (req, res, next) => {
   const serviceProviders = SERVICE_PROVIDERS.map((service) => {
     return {
       name: service.service_provider_name,
@@ -157,7 +157,7 @@ app.get("/service_providers", (req, res, next) => {
 // query the services of a service provider, requires "service_provider" param in the request body
 app.get("/services", (req, res, next) => {
   const serviceProvider = SERVICE_PROVIDERS.filter(
-    (service) => service.service_provider_id === req.body.id
+    (service) => service.service_provider_id === req.body.service_provider_id
   );
   res.status(200).json({ data: serviceProvider });
 });
