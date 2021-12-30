@@ -1,6 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4 } = require("uuid");
 const app = express();
 
 app.use(bodyParser.json());
@@ -9,6 +9,9 @@ const SERVICE_PROVIDERS = [
   {
     service_provider_name: "Vishal Travels",
     service_provider_id: "123456",
+    image:
+      "https://w0.peakpx.com/wallpaper/417/897/HD-wallpaper-volvo-9800-15m-buses-busplusmex-mexico-movilbus.jpg",
+    rating: "4.6",
     services: [
       {
         route_id: "123",
@@ -49,6 +52,9 @@ const SERVICE_PROVIDERS = [
   {
     service_provider_name: "Vijayanand Travels",
     service_provider_id: "456789",
+    rating: "3.5",
+    image:
+      "https://www.mods4u.in/bsi/img/2020/VRL-Yellow-1587936146-BUSSID-WWW-MODS4U-IN-1.jpeg",
     services: [
       {
         route_id: "489",
@@ -89,6 +95,9 @@ const SERVICE_PROVIDERS = [
   {
     service_provider_name: "Govinda Roadlines",
     service_provider_id: "789123",
+    rating: "2.5",
+    image:
+      "https://w0.peakpx.com/wallpaper/417/897/HD-wallpaper-volvo-9800-15m-buses-busplusmex-mexico-movilbus.jpg",
     services: [
       {
         route_id: "741",
@@ -149,6 +158,8 @@ app.get("/react-bus-services/providers", (req, res, next) => {
     return {
       name: service.service_provider_name,
       id: service.service_provider_id,
+      image: service.image,
+      rating: service.rating,
     };
   });
   res.status(200).json({ data: serviceProviders });
@@ -156,7 +167,7 @@ app.get("/react-bus-services/providers", (req, res, next) => {
 
 // query the services of a service provider, requires "service_provider" param in the request body
 app.get("/react-bus-services/services", (req, res, next) => {
-  if(!req.body.service_provider_id) {
+  if (!req.body.service_provider_id) {
     res
       .status(400)
       .json({ data: `service_provider_id missing in the request body` });
@@ -165,7 +176,7 @@ app.get("/react-bus-services/services", (req, res, next) => {
   const serviceProvider = SERVICE_PROVIDERS.filter(
     (service) => service.service_provider_id === req.body.service_provider_id
   );
-  if(serviceProvider.length === 0) {
+  if (serviceProvider.length === 0) {
     res
       .status(400)
       .json({ data: `Service provider not found for the mentioned id` });
@@ -179,25 +190,23 @@ app.post("/react-bus-services/book", (req, res, next) => {
   const providerId = req.body.service_provider_id;
   const routeId = req.body.route_id;
   console.log(req.body);
-  if(Object.keys(req.body).length === 0) {
-    res
-      .status(400)
-      .json({ data: `missing request body` });
+  if (Object.keys(req.body).length === 0) {
+    res.status(400).json({ data: `missing request body` });
     return;
   }
-  if(!seats) {
+  if (!seats) {
     res
       .status(400)
       .json({ data: `seats property missing in the request body` });
     return;
   }
-  if(!providerId) {
-    res
-      .status(400)
-      .json({ data: `service_provider_id property missing in the request body` });
+  if (!providerId) {
+    res.status(400).json({
+      data: `service_provider_id property missing in the request body`,
+    });
     return;
   }
-  if(!routeId) {
+  if (!routeId) {
     res
       .status(400)
       .json({ data: `route_id property missing in the request body` });
