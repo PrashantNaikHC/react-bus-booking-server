@@ -175,7 +175,7 @@ app.get("/react-bus-services/services", (req, res, next) => {
     return;
   }
   const serviceProvider = SERVICE_PROVIDERS.filter(
-    (service) => service.service_provider_id === providerId
+    (provider) => provider.service_provider_id === providerId
   );
   if (serviceProvider.length === 0) {
     res
@@ -183,7 +183,7 @@ app.get("/react-bus-services/services", (req, res, next) => {
       .json({ data: `Service provider not found for the passed service_provider_id` });
     return;
   }
-  res.status(200).json({ data: serviceProvider });
+  res.status(200).json(serviceProvider[0]);
 });
 
 app.post("/react-bus-services/book", (req, res, next) => {
