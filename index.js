@@ -167,19 +167,20 @@ app.get("/react-bus-services/providers", (req, res, next) => {
 
 // query the services of a service provider, requires "service_provider" param in the request body
 app.get("/react-bus-services/services", (req, res, next) => {
-  if (!req.body.service_provider_id) {
+  const providerId = req.query.service_provider_id;
+  if (!providerId) {
     res
       .status(400)
-      .json({ data: `service_provider_id missing in the request body` });
+      .json({ data: `service_provider_id missing in the query params` });
     return;
   }
   const serviceProvider = SERVICE_PROVIDERS.filter(
-    (service) => service.service_provider_id === req.body.service_provider_id
+    (service) => service.service_provider_id === providerId
   );
   if (serviceProvider.length === 0) {
     res
       .status(400)
-      .json({ data: `Service provider not found for the mentioned id` });
+      .json({ data: `Service provider not found for the passed service_provider_id` });
     return;
   }
   res.status(200).json({ data: serviceProvider });
