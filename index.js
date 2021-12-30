@@ -154,7 +154,7 @@ app.use((req, res, next) => {
 
 // query the service providers
 app.get("/react-bus-services/providers", (req, res, next) => {
-  console.log('GET','providers');
+  console.log("GET", "providers");
   const serviceProviders = SERVICE_PROVIDERS.map((service) => {
     return {
       name: service.service_provider_name,
@@ -168,7 +168,7 @@ app.get("/react-bus-services/providers", (req, res, next) => {
 
 // query the services of a service provider, requires "service_provider" param in the request body
 app.get("/react-bus-services/services", (req, res, next) => {
-  console.log('GET','services');
+  console.log("GET", "services");
   const providerId = req.query.service_provider_id;
   if (!providerId) {
     res
@@ -180,16 +180,17 @@ app.get("/react-bus-services/services", (req, res, next) => {
     (provider) => provider.service_provider_id === providerId
   );
   if (serviceProvider.length === 0) {
-    res
-      .status(400)
-      .json({ data: `Service provider not found for the passed service_provider_id` });
+    res.status(400).json({
+      data: `Service provider not found for the passed service_provider_id`,
+    });
     return;
   }
   res.status(200).json(serviceProvider[0]);
 });
 
+// book tickets for a route, requires "seats", "service_provider_id" and "route_id" to be passed in the request body
 app.post("/react-bus-services/book", (req, res, next) => {
-  console.log('POST','book');
+  console.log("POST", "book");
   const seats = req.body.seats;
   const providerId = req.body.service_provider_id;
   const routeId = req.body.route_id;
@@ -236,6 +237,37 @@ app.post("/react-bus-services/book", (req, res, next) => {
   };
   BOOKINGS.push(booking);
   res.status(200).json({ data: booking });
+});
+
+// search buses
+app.get("/react-bus-services/search", (req, res, next) => {
+  console.log("GET", "search");
+  const from = req.query.from;
+  const to = req.query.to;
+  const searchResult = SERVICE_PROVIDERS.map((provider) =>
+    provider.services.map((route) => ({
+      from: route.from,
+      to: route.to,
+      route_id: route.route_id,
+      service_provider_id: provider.service_provider_id,
+      service_provider_name: provider.service_provider_name,
+      type: route.type,
+      Fare: route.Fare,
+      available_seats: route.available_seats,
+      total_seats: route.total_seats,
+    }))
+  )
+    .flat()
+    .filter((route) => route.from === from)
+    .filter((route) => route.to === to);
+
+  if (searchResult.length === 0) {
+    res
+      .status(400)
+      .json({ data: "No buses available for the mentioned destinations" });
+    return;
+  }
+  res.status(200).json(searchResult);
 });
 
 app.listen(5000); // start Node + Express server on port 5000
