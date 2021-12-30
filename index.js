@@ -154,6 +154,7 @@ app.use((req, res, next) => {
 
 // query the service providers
 app.get("/react-bus-services/providers", (req, res, next) => {
+  console.log('GET','providers');
   const serviceProviders = SERVICE_PROVIDERS.map((service) => {
     return {
       name: service.service_provider_name,
@@ -167,6 +168,7 @@ app.get("/react-bus-services/providers", (req, res, next) => {
 
 // query the services of a service provider, requires "service_provider" param in the request body
 app.get("/react-bus-services/services", (req, res, next) => {
+  console.log('GET','services');
   const providerId = req.query.service_provider_id;
   if (!providerId) {
     res
@@ -187,6 +189,7 @@ app.get("/react-bus-services/services", (req, res, next) => {
 });
 
 app.post("/react-bus-services/book", (req, res, next) => {
+  console.log('POST','book');
   const seats = req.body.seats;
   const providerId = req.body.service_provider_id;
   const routeId = req.body.route_id;
