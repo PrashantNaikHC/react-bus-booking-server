@@ -144,7 +144,7 @@ app.use((req, res, next) => {
 });
 
 // query the service providers
-app.get("/providers", (req, res, next) => {
+app.get("/react-bus-services/providers", (req, res, next) => {
   const serviceProviders = SERVICE_PROVIDERS.map((service) => {
     return {
       name: service.service_provider_name,
@@ -155,17 +155,54 @@ app.get("/providers", (req, res, next) => {
 });
 
 // query the services of a service provider, requires "service_provider" param in the request body
-app.get("/services", (req, res, next) => {
+app.get("/react-bus-services/services", (req, res, next) => {
+  if(!req.body.service_provider_id) {
+    res
+      .status(400)
+      .json({ data: `service_provider_id missing in the request body` });
+    return;
+  }
   const serviceProvider = SERVICE_PROVIDERS.filter(
     (service) => service.service_provider_id === req.body.service_provider_id
   );
+  if(serviceProvider.length === 0) {
+    res
+      .status(400)
+      .json({ data: `Service provider not found for the mentioned id` });
+    return;
+  }
   res.status(200).json({ data: serviceProvider });
 });
 
-app.post("/book", (req, res, next) => {
+app.post("/react-bus-services/book", (req, res, next) => {
   const seats = req.body.seats;
   const providerId = req.body.service_provider_id;
   const routeId = req.body.route_id;
+  console.log(req.body);
+  if(Object.keys(req.body).length === 0) {
+    res
+      .status(400)
+      .json({ data: `missing request body` });
+    return;
+  }
+  if(!seats) {
+    res
+      .status(400)
+      .json({ data: `seats property missing in the request body` });
+    return;
+  }
+  if(!providerId) {
+    res
+      .status(400)
+      .json({ data: `service_provider_id property missing in the request body` });
+    return;
+  }
+  if(!routeId) {
+    res
+      .status(400)
+      .json({ data: `route_id property missing in the request body` });
+    return;
+  }
   const serviceProvider = SERVICE_PROVIDERS.find(
     (service) => service.service_provider_id === providerId
   );
