@@ -4,7 +4,7 @@ const { v4: uuidv4 } = require("uuid");
 const app = express();
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.urlencoded({ extended: false }));
 
 const SERVICE_PROVIDERS = [
   {
@@ -24,6 +24,7 @@ const SERVICE_PROVIDERS = [
         Fare: 600,
         available_seats: 20,
         total_seats: 40,
+        departure_time: "2022-01-10T18:30:00"
       },
       {
         route_id: "456",
@@ -35,6 +36,7 @@ const SERVICE_PROVIDERS = [
         Fare: 1600,
         available_seats: 12,
         total_seats: 20,
+        departure_time: "2022-01-10T20:30:00"
       },
       {
         route_id: "789",
@@ -46,6 +48,7 @@ const SERVICE_PROVIDERS = [
         Fare: 1640,
         available_seats: 7,
         total_seats: 20,
+        departure_time: "2022-01-12T20:30:00"
       },
     ],
   },
@@ -67,6 +70,7 @@ const SERVICE_PROVIDERS = [
         Fare: 1000,
         available_seats: 30,
         total_seats: 40,
+        departure_time: "2022-01-15T22:30:00"
       },
       {
         route_id: "156",
@@ -78,6 +82,7 @@ const SERVICE_PROVIDERS = [
         Fare: 2600,
         available_seats: 1,
         total_seats: 20,
+        departure_time: "2022-01-17T18:30:00"
       },
       {
         route_id: "236",
@@ -89,6 +94,7 @@ const SERVICE_PROVIDERS = [
         Fare: 3200,
         available_seats: 10,
         total_seats: 20,
+        departure_time: "2022-01-13T20:30:00"
       },
     ],
   },
@@ -110,6 +116,7 @@ const SERVICE_PROVIDERS = [
         Fare: 1200,
         available_seats: 0,
         total_seats: 40,
+        departure_time: "2022-01-10T20:30:00"
       },
       {
         route_id: "852",
@@ -121,6 +128,7 @@ const SERVICE_PROVIDERS = [
         Fare: 1200,
         available_seats: 20,
         total_seats: 20,
+        departure_time: "2022-01-20T15:30:00"
       },
       {
         route_id: "963",
@@ -132,6 +140,7 @@ const SERVICE_PROVIDERS = [
         Fare: 2600,
         available_seats: 12,
         total_seats: 20,
+        departure_time: "2022-01-20T15:30:00"
       },
     ],
   },
