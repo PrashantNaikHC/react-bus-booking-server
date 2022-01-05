@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require("uuid");
 const app = express();
 
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: false}));
 
 const SERVICE_PROVIDERS = [
   {
@@ -223,6 +224,12 @@ app.post("/react-bus-services/book", (req, res, next) => {
   const route = serviceProvider.services.find(
     (route) => route.route_id === routeId
   );
+  if (route.available_seats == 0) {
+    res
+      .status(400)
+      .json({ data: `This bus has been completely booked` });
+    return;
+  }
   if (route.available_seats < seats) {
     res
       .status(400)
