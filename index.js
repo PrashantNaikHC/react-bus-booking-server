@@ -24,7 +24,7 @@ const SERVICE_PROVIDERS = [
         Fare: 600,
         available_seats: 20,
         total_seats: 40,
-        departure_time: "2022-01-10T18:30:00"
+        departure_time: "2022-01-10T18:30:00",
       },
       {
         route_id: "456",
@@ -36,7 +36,7 @@ const SERVICE_PROVIDERS = [
         Fare: 1600,
         available_seats: 12,
         total_seats: 20,
-        departure_time: "2022-01-10T20:30:00"
+        departure_time: "2022-01-10T20:30:00",
       },
       {
         route_id: "789",
@@ -48,7 +48,7 @@ const SERVICE_PROVIDERS = [
         Fare: 1640,
         available_seats: 7,
         total_seats: 20,
-        departure_time: "2022-01-12T20:30:00"
+        departure_time: "2022-01-12T20:30:00",
       },
     ],
   },
@@ -70,7 +70,7 @@ const SERVICE_PROVIDERS = [
         Fare: 1000,
         available_seats: 30,
         total_seats: 40,
-        departure_time: "2022-01-15T22:30:00"
+        departure_time: "2022-01-15T22:30:00",
       },
       {
         route_id: "156",
@@ -82,7 +82,7 @@ const SERVICE_PROVIDERS = [
         Fare: 2600,
         available_seats: 1,
         total_seats: 20,
-        departure_time: "2022-01-17T18:30:00"
+        departure_time: "2022-01-17T18:30:00",
       },
       {
         route_id: "236",
@@ -94,7 +94,7 @@ const SERVICE_PROVIDERS = [
         Fare: 3200,
         available_seats: 10,
         total_seats: 20,
-        departure_time: "2022-01-13T20:30:00"
+        departure_time: "2022-01-13T20:30:00",
       },
     ],
   },
@@ -116,7 +116,7 @@ const SERVICE_PROVIDERS = [
         Fare: 1200,
         available_seats: 0,
         total_seats: 40,
-        departure_time: "2022-01-10T20:30:00"
+        departure_time: "2022-01-10T20:30:00",
       },
       {
         route_id: "852",
@@ -128,7 +128,7 @@ const SERVICE_PROVIDERS = [
         Fare: 1200,
         available_seats: 20,
         total_seats: 20,
-        departure_time: "2022-01-20T15:30:00"
+        departure_time: "2022-01-20T15:30:00",
       },
       {
         route_id: "963",
@@ -140,13 +140,21 @@ const SERVICE_PROVIDERS = [
         Fare: 2600,
         available_seats: 12,
         total_seats: 20,
-        departure_time: "2022-01-20T15:30:00"
+        departure_time: "2022-01-20T15:30:00",
       },
     ],
   },
 ];
 
 const BOOKINGS = [];
+
+const findBusDetails = (providerId, routeId) => {
+  const result = SERVICE_PROVIDERS.filter(
+    (provider) => provider.service_provider_id === providerId
+  )[0].services.filter((service) => service.route_id === routeId)[0];
+  console.log("findBusDetails", result);
+  return result;
+};
 
 // CORS Headers
 app.use((req, res, next) => {
@@ -198,15 +206,29 @@ app.get("/react-bus-services/services", (req, res, next) => {
   res.status(200).json(serviceProvider[0]);
 });
 
-// book tickets for a route, requires "seats", "service_provider_id" and "route_id" to be passed in the request body
+// book tickets for a route, requires "positions", "seats", "service_provider_id" and "route_id" to be passed in the request body
 app.post("/react-bus-services/book", (req, res, next) => {
   console.log("POST", "book");
   const seats = req.body.seats;
+  const seatPositions = req.body.positions;
+  const amount = req.body.amount;
   const providerId = req.body.service_provider_id;
   const routeId = req.body.route_id;
   console.log(req.body);
   if (Object.keys(req.body).length === 0) {
     res.status(400).json({ data: `missing request body` });
+    return;
+  }
+  if (!seatPositions) {
+    res
+      .status(400)
+      .json({ data: `positions property missing in the request body` });
+    return;
+  }
+  if (!amount) {
+    res
+      .status(400)
+      .json({ data: `amount property missing in the request body` });
     return;
   }
   if (!seats) {
@@ -234,9 +256,7 @@ app.post("/react-bus-services/book", (req, res, next) => {
     (route) => route.route_id === routeId
   );
   if (route.available_seats == 0) {
-    res
-      .status(400)
-      .json({ data: `This bus has been completely booked` });
+    res.status(400).json({ data: `This bus has been completely booked` });
     return;
   }
   if (route.available_seats < seats) {
@@ -246,13 +266,17 @@ app.post("/react-bus-services/book", (req, res, next) => {
     return;
   }
   route.available_seats = route.available_seats - seats;
+  console.log("id ", providerId, routeId);
+  const busDetails = findBusDetails(providerId, routeId);
+  console.log("details ", busDetails);
   const booking = {
     booking_id: uuidv4(),
-    route_id: routeId,
-    service_provider_id: providerId,
+    positions: seatPositions,
+    amount: amount,
+    ...busDetails,
   };
   BOOKINGS.push(booking);
-  res.status(200).json({ data: booking });
+  res.status(200).json(booking);
 });
 
 // search buses
@@ -284,6 +308,21 @@ app.get("/react-bus-services/search", (req, res, next) => {
     return;
   }
   res.status(200).json(searchResult);
+});
+
+// search buses
+app.get("/react-bus-services/status", (req, res, next) => {
+  console.log("GET", "status");
+  const bookingId = req.query.booking_id;
+  if(!bookingId) {
+    res.status(400).json({ data: `bookingId is missing in the query` });
+  }
+  const result = BOOKINGS.filter((booking) => booking.booking_id === bookingId)[0];
+  if(!result) {
+    res.status(400).json({ data: `No bookings for the mentioned booking id` });
+  }
+  res.status(200).json(result);
+
 });
 
 app.listen(5000); // start Node + Express server on port 5000
