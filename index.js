@@ -210,6 +210,7 @@ app.get("/react-bus-services/services", (req, res, next) => {
 app.post("/react-bus-services/book", (req, res, next) => {
   console.log("POST", "book");
   const seats = req.body.seats;
+  const name = req.body.name;
   const seatPositions = req.body.positions;
   const amount = req.body.amount;
   const providerId = req.body.service_provider_id;
@@ -229,6 +230,12 @@ app.post("/react-bus-services/book", (req, res, next) => {
     res
       .status(400)
       .json({ data: `amount property missing in the request body` });
+    return;
+  }
+  if (!name) {
+    res
+      .status(400)
+      .json({ data: `name property missing in the request body` });
     return;
   }
   if (!seats) {
@@ -270,13 +277,14 @@ app.post("/react-bus-services/book", (req, res, next) => {
   const busDetails = findBusDetails(providerId, routeId);
   console.log("details ", busDetails);
   const booking = {
+    name: name,
     booking_id: uuidv4(),
     positions: seatPositions,
     amount: amount,
     ...busDetails,
   };
   BOOKINGS.push(booking);
-  res.status(200).json(booking);
+  res.status(200).json({"data" : booking});
 });
 
 // search buses
@@ -310,7 +318,7 @@ app.get("/react-bus-services/search", (req, res, next) => {
   res.status(200).json(searchResult);
 });
 
-// search buses
+// get the status of the booking
 app.get("/react-bus-services/status", (req, res, next) => {
   console.log("GET", "status");
   const bookingId = req.query.booking_id;
@@ -323,6 +331,13 @@ app.get("/react-bus-services/status", (req, res, next) => {
   }
   res.status(200).json(result);
 
+});
+
+// get the status of the booking
+app.get("/react-bus-services/bookings", (req, res, next) => {
+  console.log("GET", "bookings");
+
+  res.status(200).json(BOOKINGS);
 });
 
 app.listen(5000); // start Node + Express server on port 5000
