@@ -212,6 +212,7 @@ app.post("/react-bus-services/book", (req, res, next) => {
   const seats = req.body.seats;
   const name = req.body.name;
   const seatPositions = req.body.positions;
+  const startSeatPosition = seatPositions.substr(1,2);
   const amount = req.body.amount;
   const providerId = req.body.service_provider_id;
   const routeId = req.body.route_id;
@@ -270,6 +271,12 @@ app.post("/react-bus-services/book", (req, res, next) => {
     res
       .status(400)
       .json({ data: `only ${route.available_seats} seats are available` });
+    return;
+  }
+  if ((route.total_seats - route.available_seats + 1) != startSeatPosition) {
+    res
+      .status(400)
+      .json({ data: `Mentioned seats are already booked. Kindly refresh the page` });
     return;
   }
   route.available_seats = route.available_seats - seats;
